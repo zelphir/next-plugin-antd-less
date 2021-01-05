@@ -46,6 +46,7 @@ module.exports = (
 
       const { dev } = options;
       const { rules } = config.module;
+      const { target } = nextConfig;
 
       // -- module --
 
@@ -118,7 +119,7 @@ module.exports = (
       rules[1].oneOf.splice(sassModuleIndex, 0, lessModule);
       config.module.rules = rules;
 
-      config = handleAntdInServer(config, options);
+      config = handleAntdInServer(config, options, target);
 
       if (typeof nextConfig.webpack === 'function') return nextConfig.webpack(config, options);
 
@@ -127,10 +128,10 @@ module.exports = (
   };
 };
 
-function handleAntdInServer(config, options) {
+function handleAntdInServer(config, options, target) {
   if (!options.isServer) return config;
 
-  const ANTD_STYLE_REGX = /antd\/.*?\/style.*?/;
+  const ANTD_STYLE_REGX = target === 'serverless' ? /(antd\/.*?\/style).*(?<![.]js)$/ : /antd\/.*?\/style.*?/;
   const rawExternals = [...config.externals];
 
   config.externals = [
